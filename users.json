@@ -1,0 +1,17 @@
+{
+  "users": [
+    { "username": "ethan.effendi", "displayName": "Ethan Effendi", "role": "President" },
+    { "username": "brandon.kong", "displayName": "Brandon Kong", "role": "Executive Vice President" },
+    { "username": "leina.ikeda", "displayName": "Leina Ikeda", "role": "Vice President of External Operations" },
+    { "username": "yingche.wee", "displayName": "Yingche Wee", "role": "Coordinator of Outreach" },
+    { "username": "jocelyn.chung", "displayName": "Jocelyn Chung", "role": "Coordinator of Graphic Design/Social Media" },
+    { "username": "cella.hsu", "displayName": "Cella Hsu", "role": "Director of Events" },
+    { "username": "lewis.tan", "displayName": "Lewis Tan", "role": "Coordinator of Events" },
+    { "username": "sunny.mathur", "displayName": "Sunny Mathur", "role": "Director of Internal Operations" },
+    { "username": "ian.shyu", "displayName": "Ian Shyu", "role": "Coordinator of Operations" },
+    { "username": "zachary.yeung", "displayName": "Zachary Yeung", "role": "Coordinator of Operations" },
+    { "username": "lucas.chen", "displayName": "Lucas Chen", "role": "Coordinator of Development" },
+    { "username": "samuel.liu", "displayName": "Samuel Liu", "role": "Coordinator of Development" },
+    { "username": "samantha.yeung", "displayName": "Samantha Yeung", "role": "Secretary/Treasurer" }
+  ]
+}

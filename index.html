@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OAYO Portal</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f5f5f3;
+    min-height: 100vh;
+    color: #1a1a1a;
+  }
+
+  /* ── Pages ── */
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: block; }
+  #login-page.active { display: flex; align-items: center; justify-content: center; }
+
+  /* ── Login ── */
+  .login-card {
+    background: #fff;
+    border: 0.5px solid rgba(0,0,0,0.12);
+    border-radius: 14px;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 380px;
+    margin: 1rem;
+  }
+
+  .logo { width: 44px; height: 44px; border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; }
+  .logo img { width: 44px; height: 44px; object-fit: cover; display: block; }
+
+  h1 { font-size: 20px; font-weight: 500; margin-bottom: 0.4rem; color: #1a1a1a; }
+  .subtitle { font-size: 14px; color: #888; margin-bottom: 1.75rem; }
+  label { display: block; font-size: 13px; font-weight: 500; color: #444; margin-bottom: 6px; }
+
+  input[type="text"] {
+    width: 100%; padding: 10px 14px; font-size: 15px;
+    border: 0.5px solid rgba(0,0,0,0.2); border-radius: 8px;
+    outline: none; background: #fff; color: #1a1a1a;
+    transition: border-color 0.15s; font-family: inherit;
+  }
+  input[type="text"]:focus { border-color: #1a1a1a; }
+
+  .error { font-size: 13px; color: #c0392b; margin-top: 8px; min-height: 18px; display: none; }
+  .error.show { display: block; }
+
+  .login-btn {
+    width: 100%; margin-top: 1.25rem; padding: 11px;
+    background: #1a1a1a; color: #fff; border: none;
+    border-radius: 8px; font-size: 15px; font-weight: 500;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .login-btn:hover { background: #333; }
+  .login-btn:active { transform: scale(0.98); }
+
+  /* ── Dashboard ── */
+  .dash-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.1rem 2rem;
+    background: #fff;
+    border-bottom: 0.5px solid rgba(0,0,0,0.1);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .dash-header .logo { margin-bottom: 0; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .user-pill { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #555; }
+  .user-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: #1a1a1a; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 500; flex-shrink: 0;
+  }
+
+  .sign-out-btn {
+    padding: 7px 13px; background: none;
+    color: #555; border: 0.5px solid rgba(0,0,0,0.2);
+    border-radius: 8px; font-size: 13px; cursor: pointer;
+    font-family: inherit; transition: background 0.15s;
+  }
+  .sign-out-btn:hover { background: #f5f5f3; }
+
+  /* ── Nav ── */
+  .dash-nav {
+    display: flex;
+    padding: 0 2rem;
+    background: #fff;
+    border-bottom: 0.5px solid rgba(0,0,0,0.1);
+  }
+  .nav-tab {
+    padding: 0.85rem 1.25rem;
+    font-size: 14px; font-weight: 500; color: #999;
+    cursor: pointer; border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .nav-tab:hover { color: #1a1a1a; }
+  .nav-tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
+
+  /* ── Content ── */
+  .dash-content { padding: 2rem; max-width: 860px; margin: 0 auto; }
+  .section-panel { display: none; }
+  .section-panel.active { display: block; }
+
+  .section-heading { font-size: 18px; font-weight: 500; color: #1a1a1a; margin-bottom: 0.3rem; }
+  .section-meta { font-size: 13px; color: #aaa; margin-bottom: 1.75rem; }
+
+  /* ── Task cards ── */
+  .task-grid { display: flex; flex-direction: column; gap: 14px; }
+
+  .task-card {
+    background: #fff;
+    border: 0.5px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    transition: box-shadow 0.15s;
+  }
+  .task-card:hover { box-shadow: 0 2px 14px rgba(0,0,0,0.07); }
+
+  .task-top {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 1rem; margin-bottom: 0.5rem;
+  }
+  .task-name { font-size: 15px; font-weight: 500; color: #1a1a1a; line-height: 1.4; }
+
+  .due-badge {
+    font-size: 11px; font-weight: 500; padding: 3px 9px;
+    border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+  }
+  .due-soon { background: #fff4e0; color: #b06000; }
+  .due-ok   { background: #e8f5e9; color: #2e7d32; }
+  .due-past { background: #fdecea; color: #c0392b; }
+
+  .task-desc { font-size: 13px; color: #666; line-height: 1.65; margin-bottom: 1rem; }
+
+  .task-members { display: flex; flex-wrap: wrap; gap: 6px; }
+  .member-chip {
+    font-size: 11px; padding: 3px 10px; border-radius: 20px;
+    background: #f0f0ee; color: #555; border: 0.5px solid rgba(0,0,0,0.08);
+  }
+  .member-chip.me { background: #1a1a1a; color: #fff; border-color: transparent; }
+
+  /* ── Coming soon ── */
+  .coming-soon {
+    background: #fff; border: 0.5px solid rgba(0,0,0,0.1);
+    border-radius: 12px; padding: 3.5rem 2rem; text-align: center;
+  }
+  .coming-soon .cs-icon { font-size: 36px; margin-bottom: 1rem; }
+  .coming-soon h3 { font-size: 15px; font-weight: 500; color: #1a1a1a; margin-bottom: 0.4rem; }
+  .coming-soon p { font-size: 13px; color: #bbb; }
+
+  /* ── Empty / loading ── */
+  .state-msg { text-align: center; padding: 3rem 1rem; color: #ccc; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="login-page" class="page active">
+  <div class="login-card">
+    <div class="logo"><img src="oayologo.png" alt="OAYO" /></div>
+    <h1>Welcome back</h1>
+    <p class="subtitle">Enter your username to continue</p>
+    <label for="username">Username</label>
+    <input type="text" id="username" placeholder="e.g. ethan.effendi" autocomplete="off" />
+    <div class="error" id="error-msg">Username not found. Please try again.</div>
+    <button class="login-btn" onclick="handleLogin()">Continue</button>
+  </div>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div id="dashboard-page" class="page">
+
+  <div class="dash-header">
+    <div class="logo"><img src="oayologo.png" alt="OAYO" /></div>
+    <div class="header-right">
+      <div class="user-pill">
+        <div class="user-avatar" id="user-avatar"></div>
+        <span id="user-label"></span>
+      </div>
+      <button class="sign-out-btn" onclick="handleSignOut()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="dash-nav">
+    <div class="nav-tab active" onclick="switchTab('tasks', this)">Tasks</div>
+    <div class="nav-tab" onclick="switchTab('meetings', this)">Meetings</div>
+    <div class="nav-tab" onclick="switchTab('events', this)">Events</div>
+  </div>
+
+  <div class="dash-content">
+
+    <!-- TASKS -->
+    <div id="panel-tasks" class="section-panel active">
+      <p class="section-heading">Tasks</p>
+      <p class="section-meta" id="tasks-meta">Loading...</p>
+      <div class="task-grid" id="task-list"></div>
+    </div>
+
+    <!-- MEETINGS -->
+    <div id="panel-meetings" class="section-panel">
+      <p class="section-heading">Meetings</p>
+      <p class="section-meta">Your upcoming and past meetings</p>
+      <div class="coming-soon">
+        <div class="cs-icon">📅</div>
+        <h3>Coming soon</h3>
+        <p>Meeting data will be pulled from meetings.json</p>
+      </div>
+    </div>
+
+    <!-- EVENTS -->
+    <div id="panel-events" class="section-panel">
+      <p class="section-heading">Events</p>
+      <p class="section-meta">Events you're involved in</p>
+      <div class="coming-soon">
+        <div class="cs-icon">🎉</div>
+        <h3>Coming soon</h3>
+        <p>Event data will be pulled from events.json</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const users = [
+    { username: "ethan.effendi",  displayName: "Ethan Effendi",  role: "President" },
+    { username: "brandon.kong",   displayName: "Brandon Kong",   role: "Executive Vice President" },
+    { username: "leina.ikeda",    displayName: "Leina Ikeda",    role: "Vice President of External Operations" },
+    { username: "yingche.wee",    displayName: "Yingche Wee",    role: "Coordinator of Outreach" },
+    { username: "jocelyn.chung",  displayName: "Jocelyn Chung",  role: "Coordinator of Graphic Design/Social Media" },
+    { username: "cella.hsu",      displayName: "Cella Hsu",      role: "Director of Events" },
+    { username: "lewis.tan",      displayName: "Lewis Tan",      role: "Coordinator of Events" },
+    { username: "sunny.mathur",   displayName: "Sunny Mathur",   role: "Director of Internal Operations" },
+    { username: "ian.shyu",       displayName: "Ian Shyu",       role: "Coordinator of Operations" },
+    { username: "zachary.yeung",  displayName: "Zachary Yeung",  role: "Coordinator of Operations" },
+    { username: "lucas.chen",     displayName: "Lucas Chen",     role: "Coordinator of Development" },
+    { username: "samuel.liu",     displayName: "Samuel Liu",     role: "Coordinator of Development" },
+    { username: "samantha.yeung", displayName: "Samantha Yeung", role: "Secretary/Treasurer" }
+  ];
+
+  let currentUser = null;
+
+  const input = document.getElementById("username");
+  input.addEventListener("keydown", e => { if (e.key === "Enter") handleLogin(); });
+  input.addEventListener("input", () => document.getElementById("error-msg").classList.remove("show"));
+
+  function handleLogin() {
+    const val = input.value.trim().toLowerCase();
+    const err = document.getElementById("error-msg");
+    if (!val) { err.textContent = "Please enter a username."; err.classList.add("show"); return; }
+    const user = users.find(u => u.username === val);
+    if (!user) { err.textContent = "Username not found. Please try again."; err.classList.add("show"); input.focus(); return; }
+
+    currentUser = user;
+    const initials = user.displayName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
+    document.getElementById("user-avatar").textContent = initials;
+    document.getElementById("user-label").textContent = user.displayName + " \u00B7 " + user.role;
+    document.getElementById("login-page").classList.remove("active");
+    document.getElementById("dashboard-page").classList.add("active");
+    loadTasks();
+  }
+
+  function handleSignOut() {
+    currentUser = null;
+    input.value = "";
+    document.getElementById("error-msg").classList.remove("show");
+    document.getElementById("task-list").innerHTML = "";
+    document.getElementById("tasks-meta").textContent = "Loading...";
+    document.getElementById("dashboard-page").classList.remove("active");
+    document.getElementById("login-page").classList.add("active");
+    document.querySelectorAll(".nav-tab").forEach((t, i) => t.classList.toggle("active", i === 0));
+    document.querySelectorAll(".section-panel").forEach((p, i) => p.classList.toggle("active", i === 0));
+    setTimeout(() => input.focus(), 50);
+  }
+
+  function switchTab(name, el) {
+    document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".section-panel").forEach(p => p.classList.remove("active"));
+    el.classList.add("active");
+    document.getElementById("panel-" + name).classList.add("active");
+  }
+
+  function getUserDisplay(username) {
+    const u = users.find(u => u.username === username);
+    return u ? u.displayName : username;
+  }
+
+  function getDueBadge(dueDateStr) {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const due = new Date(dueDateStr + "T00:00:00");
+    const diff = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+    if (diff < 0)  return { label: "Overdue", cls: "due-past" };
+    if (diff <= 7) return { label: "Due in " + diff + "d", cls: "due-soon" };
+    return { label: due.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }), cls: "due-ok" };
+  }
+
+  async function loadTasks() {
+    const list = document.getElementById("task-list");
+    const meta = document.getElementById("tasks-meta");
+    list.innerHTML = "<div class='state-msg'>Loading tasks...</div>";
+
+    let data;
+    try {
+      const res = await fetch("tasks.json");
+      if (!res.ok) throw new Error("not found");
+      data = await res.json();
+    } catch (e) {
+      list.innerHTML = "<div class='state-msg'>⚠️ Could not load tasks.json — make sure it's in the same folder as this file.</div>";
+      meta.textContent = "";
+      return;
+    }
+
+    const myTasks = data.tasks.filter(t => t.members.includes(currentUser.username));
+    meta.textContent = myTasks.length === 0
+      ? "No tasks assigned to you right now"
+      : myTasks.length + " task" + (myTasks.length !== 1 ? "s" : "") + " assigned to you";
+
+    if (myTasks.length === 0) {
+      list.innerHTML = "<div class='state-msg'>✅ You have no tasks right now.</div>";
+      return;
+    }
+
+    list.innerHTML = myTasks.map(task => {
+      const badge = getDueBadge(task.due);
+      const chips = task.members.map(m => {
+        const isMe = m === currentUser.username;
+        const name = isMe ? "You" : getUserDisplay(m);
+        return `<span class="member-chip${isMe ? " me" : ""}">${name}</span>`;
+      }).join("");
+      return `
+        <div class="task-card">
+          <div class="task-top">
+            <span class="task-name">${task.name}</span>
+            <span class="due-badge ${badge.cls}">${badge.label}</span>
+          </div>
+          <p class="task-desc">${task.description}</p>
+          <div class="task-members">${chips}</div>
+        </div>`;
+    }).join("");
+  }
+</script>
+</body>
+</html>
